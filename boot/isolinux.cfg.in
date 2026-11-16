@@ -1,0 +1,49 @@
+# ASM OS - BIOS boot menu (ISOLINUX). Keep this file pure ASCII.
+UI vesamenu.c32
+DEFAULT live
+PROMPT 0
+TIMEOUT 50
+NOESCAPE 0
+ALLOWOPTIONS 1
+
+MENU TITLE ASM OS @VERSION@ - ASM Industries
+MENU BACKGROUND bootsplash.png
+MENU RESOLUTION 640 480
+MENU MARGIN 8
+MENU ROWS 6
+MENU VSHIFT 11
+MENU TABMSGROW 15
+MENU CMDLINEROW 16
+MENU TABMSG Press TAB to edit boot options, ENTER to boot
+
+MENU COLOR screen  0 #ffffffff #00000000 none
+MENU COLOR border  0 #00000000 #00000000 none
+MENU COLOR title   1 #ff00a3ff #00000000 none
+MENU COLOR unsel   0 #ffc0c8d4 #00000000 none
+MENU COLOR sel     0 #ffffffff #dd1b2a40 none
+MENU COLOR hotkey  1 #ff00a3ff #00000000 none
+MENU COLOR hotsel  1 #ff00a3ff #dd1b2a40 none
+MENU COLOR tabmsg  0 #ff7f8ea3 #00000000 none
+MENU COLOR cmdline 0 #ffffffff #00000000 none
+MENU COLOR timeout 0 #ff7f8ea3 #00000000 none
+MENU COLOR timeout_msg 0 #ff7f8ea3 #00000000 none
+
+LABEL live
+  MENU LABEL ^ASM OS (Live)
+  KERNEL /live/vmlinuz
+  APPEND initrd=/live/initrd.img @CMDLINE@
+
+LABEL safe
+  MENU LABEL ASM OS (^Safe graphics - nomodeset)
+  KERNEL /live/vmlinuz
+  APPEND initrd=/live/initrd.img @CMDLINE@ nomodeset
+
+LABEL fail-safe
+  MENU LABEL ASM OS (^Fail-safe - no ACPI/APIC)
+  KERNEL /live/vmlinuz
+  APPEND initrd=/live/initrd.img @CMDLINE@ nomodeset noapic noacpi nolapic
+
+LABEL toram
+  MENU LABEL ASM OS (Copy to ^RAM - needs 2 GB or more)
+  KERNEL /live/vmlinuz
+  APPEND initrd=/live/initrd.img @CMDLINE@ toram
