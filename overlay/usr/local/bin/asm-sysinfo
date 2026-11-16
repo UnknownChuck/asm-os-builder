@@ -1,0 +1,20 @@
+#!/bin/bash
+# ASM OS - quick memory / boot report. Use it to verify the idle-RAM target.
+. /etc/os-release 2>/dev/null
+echo "=== ${PRETTY_NAME:-ASM OS} | kernel $(uname -r) | $(nproc) CPU core(s) ==="
+echo
+echo "--- Memory (MB) ---"
+free -m
+awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{printf "\nIn use (MemTotal - MemAvailable): %d MB of %d MB   <- idle target: under 250 MB\n",(t-a)/1024,t/1024}' /proc/meminfo
+echo
+echo "--- Swap / zram ---"
+swapon --show 2>/dev/null
+zramctl 2>/dev/null
+echo
+echo "--- Top 12 processes by resident memory ---"
+ps -eo rss,comm --sort=-rss | head -13 | awk 'NR==1{print "   RSS(MB) COMMAND"; next} {printf "%10.1f %s\n",$1/1024,$2}'
+echo
+echo "--- Boot time ---"
+systemd-analyze 2>/dev/null | head -1
+echo
+echo "Note: when running from the live ISO, files you write live in RAM (tmpfs overlay)."

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Code Editor
+Exec=geany %F
+Icon=accessories-text-editor
+Terminal=false
+Categories=Development;TextEditor;
+MimeType=text/plain;

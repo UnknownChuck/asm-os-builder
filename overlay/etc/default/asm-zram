@@ -1,0 +1,5 @@
+# ASM OS zram swap settings (sourced by /usr/local/sbin/asm-zram)
+# 1 GB machine: 100% = ~1 GB zram device; holds ~2-3 GB of pages once compressed.
+ZRAM_PERCENT=100
+ZRAM_MAX_MB=3072
+ZRAM_PRIORITY=100

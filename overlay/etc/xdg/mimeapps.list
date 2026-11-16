@@ -1,0 +1,6 @@
+[Default Applications]
+text/html=asm-browser.desktop
+x-scheme-handler/http=asm-browser.desktop
+x-scheme-handler/https=asm-browser.desktop
+inode/directory=asm-files.desktop
+text/plain=asm-editor.desktop

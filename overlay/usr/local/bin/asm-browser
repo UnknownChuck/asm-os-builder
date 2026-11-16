@@ -1,0 +1,19 @@
+#!/bin/sh
+# ASM OS default browser launcher: picks the installed browser and applies
+# low-memory flags. Edit the flags below to taste.
+LEAN="--renderer-process-limit=2 --disable-gpu --disable-extensions --disable-background-networking --enable-low-end-device-mode --disk-cache-size=33554432"
+
+if command -v falkon >/dev/null 2>&1; then
+    export QTWEBENGINE_CHROMIUM_FLAGS="$LEAN"
+    exec falkon "$@"
+elif command -v chromium >/dev/null 2>&1; then
+    exec chromium $LEAN --disable-sync --no-first-run "$@"
+elif command -v epiphany >/dev/null 2>&1; then
+    exec epiphany "$@"
+elif command -v netsurf-gtk >/dev/null 2>&1; then
+    exec netsurf-gtk "$@"
+elif command -v firefox-esr >/dev/null 2>&1; then
+    exec firefox-esr "$@"
+fi
+echo "asm-browser: no web browser installed" >&2
+exit 1

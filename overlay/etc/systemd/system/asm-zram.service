@@ -1,0 +1,17 @@
+[Unit]
+Description=ASM OS compressed RAM swap (zram)
+Documentation=file:///usr/local/sbin/asm-zram
+DefaultDependencies=no
+After=systemd-modules-load.service local-fs.target
+Before=swap.target sysinit.target
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/asm-zram start
+ExecStop=/usr/local/sbin/asm-zram stop
+
+[Install]
+WantedBy=sysinit.target

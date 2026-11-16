@@ -1,0 +1,50 @@
+#!/bin/bash
+# ASM OS - compressed RAM swap (zram). Called by asm-zram.service.
+#   asm-zram start|stop|status
+# Tunables live in /etc/default/asm-zram.
+set -euo pipefail
+
+ZRAM_PERCENT=100        # zram disk size as % of physical RAM (data compresses ~2-3x)
+ZRAM_MAX_MB=3072        # hard cap
+ZRAM_PRIORITY=100       # higher than any disk swap
+# shellcheck disable=SC1091
+[[ -f /etc/default/asm-zram ]] && . /etc/default/asm-zram
+
+DEV=/dev/zram0
+SYS=/sys/block/zram0
+
+start() {
+    modprobe zram || { echo "asm-zram: zram module unavailable" >&2; exit 1; }
+    [[ -e $SYS ]] || { echo "asm-zram: $SYS missing" >&2; exit 1; }
+    swapoff "$DEV" 2>/dev/null || true
+    echo 1 > "$SYS/reset" 2>/dev/null || true
+
+    local mem_kb size_mb algo supported
+    mem_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+    size_mb=$(( mem_kb * ZRAM_PERCENT / 100 / 1024 ))
+    (( size_mb > ZRAM_MAX_MB )) && size_mb=$ZRAM_MAX_MB
+
+    supported=$(cat "$SYS/comp_algorithm")
+    supported=${supported//[\[\]]/}
+    algo=lzo
+    for a in zstd lz4 lzo-rle lzo; do
+        case " $supported " in *" $a "*) algo=$a; break ;; esac
+    done
+    echo "$algo" > "$SYS/comp_algorithm"
+    echo "$(( size_mb * 1024 * 1024 ))" > "$SYS/disksize"
+    mkswap -q -L asm-zram "$DEV"
+    swapon -p "$ZRAM_PRIORITY" "$DEV"
+    echo "asm-zram: ${size_mb} MB ($algo) swap on $DEV, priority $ZRAM_PRIORITY"
+}
+
+stop() {
+    swapoff "$DEV" 2>/dev/null || true
+    if [[ -e $SYS ]]; then echo 1 > "$SYS/reset" 2>/dev/null || true; fi
+}
+
+case "${1:-start}" in
+    start)  start ;;
+    stop)   stop ;;
+    status) swapon --show; zramctl 2>/dev/null || true ;;
+    *) echo "usage: $0 start|stop|status" >&2; exit 2 ;;
+esac

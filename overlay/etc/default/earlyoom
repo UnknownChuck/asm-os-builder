@@ -1,0 +1,3 @@
+# earlyoom: terminate the biggest process *before* a 1 GB machine freezes.
+# Acts when available RAM < 5% AND free swap < 10%. -r 0 silences periodic reports.
+EARLYOOM_ARGS="-r 0 -m 5 -s 10"
