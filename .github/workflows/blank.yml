@@ -14,10 +14,8 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
 
-      - name: Extract and Build ASM-OS ISO
+      - name: Build ASM-OS ISO
         run: |
-          tar -xzf asm-os.tar.gz
-          cd asm-os
           chmod +x build.sh
           sudo ./build.sh
 
@@ -26,6 +24,6 @@ jobs:
         with:
           name: ASM-OS-ISO
           path: |
-            asm-os/out/ASM-OS.iso
-            asm-os/out/ASM-OS.iso.sha256
+            out/ASM-OS.iso
+            out/ASM-OS.iso.sha256
           retention-days: 7
