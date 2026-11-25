@@ -1,4 +1,4 @@
-name: Build ASM-OS ISO
+name: Build ASM OS ISO
 
 on:
   workflow_dispatch:
@@ -12,18 +12,28 @@ jobs:
 
       - name: Free up extra disk space
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/android
 
-      - name: Build ASM-OS ISO
+      - name: Install build dependencies
         run: |
-          chmod +x build.sh
-          sudo ./build.sh
+          sudo apt-get update
+          sudo apt-get install -y debootstrap squashfs-tools xorriso isolinux syslinux-common grub-pc-bin grub-efi-amd64-bin mtools dosfstools zstd
 
-      - name: Upload ASM-OS ISO Artifact
+      - name: Build ASM OS ISO
+        run: |
+          if [ -f build.sh ]; then
+            chmod +x build.sh
+            sudo ./build.sh
+          elif [ -f Makefile ]; then
+            sudo make
+          else
+            ls -la
+            exit 1
+          fi
+
+      - name: Upload ASM OS ISO Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ASM-OS-ISO
-          path: |
-            out/ASM-OS.iso
-            out/ASM-OS.iso.sha256
-          retention-days: 7
+          path: "**/*.iso"
+          if-no-files-found: error
